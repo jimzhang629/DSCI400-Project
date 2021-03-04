@@ -1,3 +1,3 @@
 # DSCI400-Project
 
-The goal of this project is to visualize relationships between indicators in the Human Capital Index and Human Freedom Index. (Update with more later).
+The goal of this project is to visualize and predict relationships between indicators in the Python World Bank API.
