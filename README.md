@@ -14,6 +14,7 @@ The following packages are necessary:
 - pandas
 - plotly
 - world_bank_data
+For more information on package versions, see requirements.txt.
 
 ## Dataset
 Data used for this project can be obtained through this API: https://pypi.org/project/world-bank-data/
