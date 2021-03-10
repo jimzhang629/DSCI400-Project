@@ -14,6 +14,7 @@ The following packages are necessary:
 - pandas
 - plotly
 - world_bank_data
+
 For more information on package versions, see requirements.txt.
 
 ## Dataset
