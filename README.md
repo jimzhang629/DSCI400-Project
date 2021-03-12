@@ -4,18 +4,14 @@
 The goal of this project is to visualize and predict relationships between indicators in the Python World Bank API.
 
 ## Installation Instructions
-N/A
+Install the necessary depedencies found in rqeuirements.txt.
+Run xxx.py file. (TBD)
 
 ## Usage Instrucions
 TBD
 
 ## Dependencies
-The following packages are necessary:
-- pandas
-- plotly
-- world_bank_data
-
-For more information on package versions, see requirements.txt.
+For a list of necessary packages and package versions, see requirements.txt.
 
 ## Dataset
 Data used for this project can be obtained through this API: https://pypi.org/project/world-bank-data/
