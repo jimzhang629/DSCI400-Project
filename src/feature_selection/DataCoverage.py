@@ -22,6 +22,21 @@ def get_iso_code(country):
     else:
         return iso_code
 
+def get_specific_indicator_code(keyword):
+    '''
+    (Helper function) Get specific codes for indicators related to a keyword
+
+    keyword (string) -- keyword to get codes for
+    '''
+
+    indicator_codes = wb.series.info(q=keyword)
+
+    if indicator_codes is None:
+        print("ERROR: indicator_codes could not resolve keyword argument.")
+        return None
+    else:
+        return indicator_codes
+        
 def get_indicators_for_country(country, min_year=None, max_year=None):
     '''
     Get set (generator) of indicators for specific country.
