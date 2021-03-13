@@ -1,54 +1,92 @@
 import csv
 import numpy as np
-import pandas as pd
-import world_bank_data as wb
+import wbgapi as wb
 
 def get_indicator_codes():
     '''
-    Get list of code/id's for all indicators.
+    (Helper function) Get list of code/id's for all indicators.
     '''
-    all_indicators = wb.get_indicators()
-    return list(all_indicators.index)
+    return [row['id'] for row in wb.series.list(db=2)] # 2 specifies WDI
 
-def get_indicators_for_country(country, threshold=0.0):
+def get_iso_code(country):
     '''
-    Get list of indicators with data for specified country.
+    (Helper function) Get iso code for country.
 
-    country (string) -- returned indicators should have data available for this
-                        country (e.g. "Colombia", "Norway")
-    threshold (float) -- returned indicators should have a data coverage for
-                         the specified country equal to or above this threshold
+    country (string) -- country to get iso code for
     '''
-    indicator_codes = get_indicator_codes()
-    keep_indicators = []
+    iso_code = wb.economy.coder(country)
 
-    try:
-        country_data = wb.search_countries(country)
-    except: # country name is not valid in dataset
-        print("ERROR: get_indicators_for_country could not resolve country name.\n")
-        return
+    if iso_code is None:
+        print("ERROR: get_iso_code could not resolve country name.")
+        return None
+    else:
+        return iso_code
 
-    for indicator in indicator_codes:
+def get_indicators_for_country(country, min_year=None, max_year=None):
+    '''
+    Get set (generator) of indicators for specific country.
+    This is a generator function, as it returns a generator object.
 
-        try:
-            df = wb.get_series(indicator)
-        except ValueError:
-            continue # ignore deleted or archived indicators
+    country (string) -- country specified to get indicators for
+    min_year (4-digit int) -- start year of data coverage consideration (only
+                              used if max_year also available)
+    max_year (4-digit int) -- end year of data coverage consideration (only
+                              used if max_year also available)   
+    '''
+    joined_indicator_codes = ';'.join(get_indicator_codes()) # joined for refetch fxn
+    country_iso_code = get_iso_code(country)
 
-        try:
-            country_df = df.loc[country]
-        except KeyError:
-            continue # no relevant country data in this indicator, so ignore
-        
-        num_na = country_df.isna().sum()
-        num_rows = len(country_df)
-        coverage_percentage = (num_rows - num_na) / num_rows
-        #print(coverage_percentage)
+    if country_iso_code is None:
+        return [] # no error print needed as one will be printed in get_iso_code
 
-        if coverage_percentage >= threshold:
-            keep_indicators.append(indicator)
+    if min_year is not None and max_year is not None:
+        ind_generator = wb.refetch('sources/{source}/series/{series}/country/{economy}', \
+            ['series', 'economy'], source=2, series=joined_indicator_codes, \
+            economy=country_iso_code, time=range(min_year, max_year, 1))
+    else:
+       ind_generator = wb.refetch('sources/{source}/series/{series}/country/{economy}', \
+            ['series', 'economy'], source=2, series=joined_indicator_codes, \
+            economy=country_iso_code) 
 
-    return keep_indicators
+    return ind_generator
+
+def filter_indicators_by_coverage(ind_generator, threshold=0.0):
+    '''
+    Get set of indicators filtered by data coverage. Indicators that
+    have data coverage equal to or above 'threshold' will be included.
+
+    Deciding against converting the generator into a dataframe and just iterating
+    due to immense size of data; it will probably be more efficient iterating
+    than manipulating the large dataframe for each unique indicator.
+
+    ind_generator (generator) -- list of indicators and their respective values
+    threshold (float) -- minimum data coverage amount                         
+    '''
+    filtered_ind = set()
+    prev_ind_code = None
+    num_nan = 0
+    num_total = 0
+
+    for row in ind_generator:
+        curr_ind_code = row['variable'][0]['id']
+        curr_value = row['value']
+
+        # calculate stats for prev indicator
+        if curr_ind_code != prev_ind_code and prev_ind_code is not None:
+
+            coverage_percentage = (num_total - num_nan) / num_total
+            if coverage_percentage >= threshold:
+                filtered_ind.add(prev_ind_code)
+
+            num_nan = 0
+            num_total = 0
+
+        if curr_value is None:
+            num_nan += 1
+        num_total += 1
+        prev_ind_code = curr_ind_code
+
+    return list(filtered_ind)
 
 def export_array(arr, filename):
     '''
@@ -59,8 +97,12 @@ def export_array(arr, filename):
     '''
     # reshape file for export formatting
     len_arr = len(arr)
+
+    if len_arr == 0:
+        print("ERROR: export_array cannot convert empty data.")
+        return
+
     reshaped_arr = np.array(arr).reshape((len_arr, 1))
-    print(reshaped_arr)
 
     file = open(filename, 'w+', newline ='')
 
@@ -69,10 +111,12 @@ def export_array(arr, filename):
         write.writerows(reshaped_arr)
     file.close()
 
-
+    
 if __name__ == "__main__":
     '''
     The Main Function of this file, where execution starts.
     '''
-    col_indicators = get_indicators_for_country('Colombia', 0.90)
-    export_array(col_indicators, 'col_data.csv')
+    fetched_ind = get_indicators_for_country('Colombia', 1980, 2010)
+    filtered_ind = filter_indicators_by_coverage(fetched_ind, 0.90)
+    print(len(filtered_ind))
+    export_array(filtered_ind, 'NEW_col_data_90_threshold.csv')
