@@ -1,13 +1,24 @@
 import csv
 import re
-import numpy as np
+import pandas as pd
 import wbgapi as wb
 
 def get_indicator_codes():
     '''
-    (Helper function) Get set of code/id's for all indicators.
+    (Helper function) Get list of sets of indicator codes. Each set of indicators
+    belong to the same db source.
     '''
-    return set(row['id'] for row in wb.series.list(db=2)) # 2 specifies WDI
+    all_codes = []
+    db_nums = set(row['id'] for row in wb.source.list())
+
+    for db_iter in db_nums:
+        try:
+            indicator_set = set(row['id'] for row in wb.series.list(db=db_iter))
+            all_codes.append(indicator_set)
+        except:
+            continue # ignore db's that throw errors with invalid formats
+    
+    return all_codes
 
 def get_iso_code(country):
     '''
@@ -40,8 +51,8 @@ def get_specific_indicator_code(keyword):
 
 def get_indicators_for_country(country, min_year=None, max_year=None):
     '''
-    Get dataframe of indicators for specific country (and possibly for
-    specific year time range).
+    Get dataframe of indicators and respective values for specific country (and
+    possibly for specific year time range).
 
     country (string) -- country specified to get indicators for
     min_year (4-digit int) -- start year of data coverage consideration (only
@@ -57,13 +68,23 @@ def get_indicators_for_country(country, min_year=None, max_year=None):
     if country_iso_code is None:
         return pd.DataFrame({'NOTHING' : []}) # no error print needed as one will be printed in get_iso_code
 
-    if min_year is not None and max_year is not None:
-        ind_df = wb.data.DataFrame(all_indicators, country_iso_code, \
-            time=range(min_year, max_year, 1), labels=True)
-    else:
-        ind_df = wb.data.DataFrame(all_indicators, country_iso_code, labels=True)
+    ret_dfs = [] # list of all indicator df's to be later combined
 
-    return ind_df
+    for indicator_set in all_indicators:
+
+        try:
+            if min_year is not None and max_year is not None:
+                ind_df = wb.data.DataFrame(indicator_set, country_iso_code, \
+                    time=range(min_year, max_year, 1), labels=True)
+            else:
+                ind_df = wb.data.DataFrame(indicator_set, country_iso_code, labels=True)
+
+            ret_dfs.append(ind_df)
+
+        except:
+            continue # ignore indicator df's that have fundamental formatting issues
+
+    return pd.concat(ret_dfs, axis=0)
 
 def filter_indicators_by_coverage(ind_df, threshold=0.0):
     '''
@@ -77,7 +98,7 @@ def filter_indicators_by_coverage(ind_df, threshold=0.0):
     year_regex = re.compile("^YR[0-9][0-9][0-9][0-9]")
     years_list = [col for col in df_cols if re.search(r"^YR[0-9][0-9][0-9][0-9]", col)]
 
-    ind_df['COUNT_NAN'] = test_df[years_list].isnull().sum(axis=1)
+    ind_df['COUNT_NAN'] = ind_df[years_list].isnull().sum(axis=1)
     ind_df['COUNT_TOT'] = len(years_list)
     ind_df['COVERAGE_PERCENT'] = (ind_df['COUNT_TOT'] - ind_df['COUNT_NAN']) / ind_df['COUNT_TOT']
 
@@ -89,4 +110,4 @@ if __name__ == "__main__":
     '''
     ind_df = get_indicators_for_country('Colombia', 1980, 2011)
     filtered_df = filter_indicators_by_coverage(ind_df, 1.0)
-    filtered_df.to_csv('COL_df_100_threshold.csv', index=True, header=True, index_label=True)
+    filtered_df.to_csv('ALL_DB_COL_data_100_threshold.csv', index=True, header=True, index_label=True)
