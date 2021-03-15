@@ -111,6 +111,3 @@ if __name__ == "__main__":
     ind_df = get_indicators_for_country('Colombia', 1980, 2011)
     filtered_df = filter_indicators_by_coverage(ind_df, 1.0)
     filtered_df.to_csv('ALL_DB_COL_data_100_threshold.csv', index=True, header=True, index_label=True)
-
-
-# test
