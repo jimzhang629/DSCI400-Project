@@ -1,5 +1,4 @@
-from src.modules.DataWrangling import csv2df
-from src.modules.DataWrangling import normalize
+from src.modules.DataWrangling import wrangle
 from scipy.cluster.vq import kmeans
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
@@ -7,36 +6,41 @@ import numpy as np
 from scipy.spatial.distance import cdist, pdist
 
 # import data
-df = csv2df('../cached_data/ALL_DB_COL_data_100_threshold.csv')
-
-# remove duplicates and normalize
-# todo: include this data wrangling step as a module
-df = df.drop_duplicates()
-df = normalize(df)
+df = wrangle('../cached_data/ALL_DB_COL_data_100_threshold.csv')
 
 def elbow(df, lower, upper, fname, k_idx, step=1):
-    # todo: docs
+    """
+    Plots the elbow curve of K-means for multiple values of K.
+    @param df: The DataFrame object containing all data.
+    @param lower: The lower bound for K.
+    @param upper: the upper bound for K.
+    @param fname: The filename for the figure to export.
+    @param k_idx: The optimal index of K to plot and to return.
+    @param step: The step size for K
+    @return: The centroid clusters after running K-means with k_idx = K.
+    """
     if upper > len(df):
         raise Exception('Upper neighbors bound higher than feature count')
 
-    ##### cluster data into K=1..20 clusters #####
+    # Cluster the data with multiple K values
     KK = range(lower, upper + 1, step)
 
+    # Calculate the distances, entropy, and variance
     KM = [kmeans(df, k, iter=100) for k in KK]
     centroids = [cent for (cent, var) in KM]
     D_k = [cdist(df, cent, 'euclidean') for cent in centroids]
     dist = [np.min(D, axis=1) for D in D_k]
-
-    tot_withinss = [sum(d ** 2) for d in dist]  # Total within-cluster sum of squares
+    tot_withinss = [sum(d ** 2) for d in dist]
     totss = sum(pdist(df) ** 2) / df.shape[0]  # The total sum of squares
     betweenss = totss - tot_withinss  # The between-cluster sum of squares
 
-    # Create a rolling average
+    # Create a rolling average to reduce noise
     window_width = 2
     cumsum_vec = np.cumsum(np.insert(betweenss, 0, 0))
     ma_vec = (cumsum_vec[window_width:] - cumsum_vec[
                                           :-window_width]) / window_width
-    # elbow curve
+
+    # Plot the elbow curve
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(KK[window_width - 1:], ma_vec / totss * 100, 'b*-')
