@@ -1,20 +1,23 @@
-from modules.FeatureSelectionTools import csv2df
-from modules.FeatureSelectionTools import normalize
+from src.modules.DataWrangling import csv2df
+from src.modules.DataWrangling import normalize
 from scipy.cluster.vq import kmeans
+from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial.distance import cdist, pdist
 
 # import data
-df = csv2df('~/Documents/DSCI400/DSCI400-Project/src/cached_data/'
-            'ALL_DB_COL_data_100_threshold.csv')
+df = csv2df('../cached_data/ALL_DB_COL_data_100_threshold.csv')
 
 # remove duplicates and normalize
 # todo: include this data wrangling step as a module
 df = df.drop_duplicates()
 df = normalize(df)
 
-def elbow(df, lower, upper, fname, mark_idx, step=1):
+def elbow(df, lower, upper, fname, k_idx, step=1):
+    # todo: docs
+    if upper > len(df):
+        raise Exception('Upper neighbors bound higher than feature count')
 
     ##### cluster data into K=1..20 clusters #####
     KK = range(lower, upper + 1, step)
@@ -33,12 +36,11 @@ def elbow(df, lower, upper, fname, mark_idx, step=1):
     cumsum_vec = np.cumsum(np.insert(betweenss, 0, 0))
     ma_vec = (cumsum_vec[window_width:] - cumsum_vec[
                                           :-window_width]) / window_width
-
     # elbow curve
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(KK[window_width - 1:], ma_vec / totss * 100, 'b*-')
-    ax.plot(KK[mark_idx], betweenss[mark_idx] / totss * 100, marker='o',
+    ax.plot(KK[k_idx], betweenss[k_idx] / totss * 100, marker='o',
             markersize=12, markeredgewidth=2, markeredgecolor='r',
             markerfacecolor='None')
     ax.set_ylim((60, 100))
@@ -49,4 +51,12 @@ def elbow(df, lower, upper, fname, mark_idx, step=1):
     plt.savefig(fname, dpi=1000)
     plt.clf()
 
-elbow(df, 1, 475, 'Figures/kmeans elbow.png', 200)
+    return KM[int(step/k_idx)]
+
+
+# knn = elbow(df, 25, 475, 'Figures/kmeans elbow.png', 5, 25)
+
+# knn2 = kmeans2(df, 150, iter=10000, minit='++')[1]
+kmeans = KMeans(n_clusters=150, random_state=0, n_init=5000,
+                max_iter=10000).fit(df)  # random_state is seed
+

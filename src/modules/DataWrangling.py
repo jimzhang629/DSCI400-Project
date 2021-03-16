@@ -2,10 +2,10 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
 
-def csv2df(filepath, t=None):
+def csv2df(filepath, t=False):
     """
-    (Helper Function) Returns a dataframe of a cached csv file. The index is
-    the indicator name. Rows are countries and cols are years.
+    Returns a dataframe of a cached csv file. The index is the indicator name.
+    Rows are countries and cols are years.
     @param filepath: The filepath of the csv file.
     @param t: Transpose result if True, default False.
     @return: A Dataframe object representing the data in the csv file.
@@ -51,3 +51,23 @@ def normalize(data):
                              columns=data.columns)
 
     return norm_data.transpose()
+
+
+def remove_duplicates(df):
+    """
+    Removes the duplicate rows of the DataFrame matrix.
+    @param df: The input DataFrame matrix.
+    @return: An output DataFrame matrix with no duplicated rows.
+    """
+    return df.drop_duplicates()
+
+
+def wrangle(filepath):
+    """
+    Imports the CSV file, removes duplicates, and normalizes all the data.
+    @param filepath: The filepath of the CSV file.
+    @return: A DataFrame file with all normalized and cleaned data.
+    """
+    df = csv2df(filepath)
+    df = normalize(df)
+    return remove_duplicates(df)
