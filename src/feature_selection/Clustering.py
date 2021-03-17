@@ -22,13 +22,13 @@ def elbow(df, lower, upper, fname, k_idx, step=1):
         raise Exception('Upper neighbors bound higher than feature count')
 
     # Cluster the data with multiple K values
-    KK = range(lower, upper + 1, step)
+    kk = range(lower, upper + 1, step)
 
     # Calculate the distances, entropy, and variance
-    KM = [kmeans(df, k, iter=100) for k in KK]
-    centroids = [cent for (cent, var) in KM]
-    D_k = [cdist(df, cent, 'euclidean') for cent in centroids]
-    dist = [np.min(D, axis=1) for D in D_k]
+    km = [kmeans(df, k, iter=100) for k in kk]
+    centroids = [cent for (cent, var) in km]
+    d_k = [cdist(df, cent, 'euclidean') for cent in centroids]
+    dist = [np.min(D, axis=1) for D in d_k]
     tot_withinss = [sum(d ** 2) for d in dist]
     totss = sum(pdist(df) ** 2) / df.shape[0]  # The total sum of squares
     betweenss = totss - tot_withinss  # The between-cluster sum of squares
@@ -42,8 +42,8 @@ def elbow(df, lower, upper, fname, k_idx, step=1):
     # Plot the elbow curve
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(KK[window_width - 1:], ma_vec / totss * 100, 'b*-')
-    ax.plot(KK[k_idx], betweenss[k_idx] / totss * 100, marker='o',
+    ax.plot(kk[window_width - 1:], ma_vec / totss * 100, 'b*-')
+    ax.plot(kk[k_idx], betweenss[k_idx] / totss * 100, marker='o',
             markersize=12, markeredgewidth=2, markeredgecolor='r',
             markerfacecolor='None')
     ax.set_ylim((60, 100))
@@ -54,7 +54,7 @@ def elbow(df, lower, upper, fname, k_idx, step=1):
     plt.savefig(fname, dpi=1000)
     plt.clf()
 
-    return KM[int(step / k_idx)]
+    return km[int(step / k_idx)]
 
 
 def k_means(df, n, n_init, max_iter):
