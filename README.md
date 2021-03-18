@@ -9,7 +9,7 @@ The goal of this project is to visualize and predict relationships between world
 3. Use these networks to predict the future metrics of each country
 4. (if time permits) Cluster data by regions or specific metrics to identify trends
 
-## Usage Instrucions
+## Usage Instructions
 TBD
 
 ## Dependencies
