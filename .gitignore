@@ -1,3 +1,4 @@
 # ignore JetBrains IDE generated files
 *.iml
 .idea/
+__pycache__/
