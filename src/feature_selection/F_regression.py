@@ -5,7 +5,8 @@ from src.modules.DataWrangling import wrangle
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 
-# Following https://towardsdatascience.com/best-bulletproof-python-feature-selection-methods-every-data-scientist-should-know-7c1027a833c6
+# Following https://towardsdatascience.com/
+# best-bulletproof-python-feature-selection-methods-every-data-scientist-should-know-7c1027a833c6
 
 # Import data
 data = wrangle('../cached_data/ALL_DB_COL_data_100_threshold.csv')
