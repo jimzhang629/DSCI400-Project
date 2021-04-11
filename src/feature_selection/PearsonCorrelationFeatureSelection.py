@@ -11,6 +11,7 @@ import wbgapi as wb
 import matplotlib.pyplot as plt
 import seaborn as sns
 import DataCoverage as dc
+import modules.DataIngestion as di
 
 # get_ipython().run_line_magic('matplotlib', 'inline')
 
@@ -22,7 +23,7 @@ def indicator_dataframe(country, start_year, end_year, coverage_threshold=0.9):
     coverage_threshold -- The required indicator coverage threshold. For example, if it is 0.9, then there must exist data for 90% of the selected years.
     '''
     fetched_ind = dc.get_indicators_for_country(country, start_year, end_year)
-    filtered_ind = dc.filter_indicators_by_coverage(fetched_ind, coverage_threshold)
+    filtered_ind = di.filter_indicators_by_coverage(fetched_ind, coverage_threshold)
     country_code = dc.get_iso_code(country)
     df = wb.data.DataFrame(list(filtered_ind.index), country_code, time=range(start_year, end_year), skipBlanks=True, columns='series')
 
