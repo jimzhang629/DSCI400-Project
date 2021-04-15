@@ -9,19 +9,20 @@ from statsmodels.tsa.api import VAR
 
 
 def granger_threshold(df, indicator, lag, thresh, test='ssr_ftest'):
-    """
+    '''
     Computes the Granger causation for the indicator in the first column of df
     with all other indicators.
-    @param DataFrame df: The input data.
-    @param String indicator: The indicator being compared with all other
-    indicators.
-    @param Integer lag: The maximum amount of Granger lag permitted
-    @param Integer thresh: The highest p-value to reject the null hypothesis
-    @param String test: The test to use to determine Granger causuality
-    @return: A reduced dataframe that only has indicators that Granger cause
+
+    df (DataFrame) -- The input data.
+    indicator (String) -- The indicator being compared with all other indicators.
+    lag (Integer) -- The maximum amount of Granger lag permitted
+    thresh (Integer) -- The highest p-value to reject the null hypothesis
+    test (String) -- The test to use to determine Granger causuality
+
+    return: A reduced dataframe that only has indicators that Granger cause
     the main indicator, and an integer representing how many causal indicators
     there are
-    """
+    '''
 
     # go through every indicator
     indicators = list(df)
@@ -56,14 +57,16 @@ def granger_threshold(df, indicator, lag, thresh, test='ssr_ftest'):
 
 
 def most_causal_indicator(df, lag, thresh, test='ssr_ftest'):
-    """
+    '''
     Determines the indicator that has the most causal indicators
-    @param DataFrame df: The input data.
-    @param Integer lag: The maximum amount of Granger lag permitted
-    @param Integer thresh: The highest p-value to reject the null hypothesis
-    @param String test: The test to use to determine Granger causaulity
-    @return: The name of the indicator with the most causal indicators
-    """
+
+    df (DataFrame) -- The input data.
+    lag (Integer) -- The maximum amount of Granger lag permitted
+    thresh (Integer) -- The highest p-value to reject the null hypothesis
+    test (String) -- The test to use to determine Granger causaulity
+
+    return: The name of the indicator with the most causal indicators
+    '''
     largest_df = 0
     best_indicator = None
     indicators = list(df)
@@ -78,12 +81,14 @@ def most_causal_indicator(df, lag, thresh, test='ssr_ftest'):
 
 
 def adf_test(ts, signif=0.05):
-    """
+    '''
     Tests if the time series is stationary
-    @param Series ts: The input time series
-    @param Float signif: The highest threshold to determine stationarity
-    @return: Whether the time series is stationary
-    """
+
+    ts (Series) -- The input time series
+    signif (Float) -- The highest threshold to determine stationarity
+
+    return: Whether the time series is stationary
+    '''
 
     # run ADF test to determine stationarity
     dftest = adfuller(ts, regression='ct')
@@ -100,11 +105,13 @@ def adf_test(ts, signif=0.05):
 
 
 def df_adf_test(df):
-    """
+    '''
     Determines if all the time series in df is stationary
-    @param DataFrame df: The input data containing multiple time series
-    @return: Whether all time series in the dataframe is stationary
-    """
+
+    df (DataFrame) - The input data containing multiple time series
+
+    return: Whether all time series in the dataframe is stationary
+    '''
     indicators = list(df)
 
     # check stationarity for all indicators
@@ -115,22 +122,26 @@ def df_adf_test(df):
 
 
 def first_diff(ts):
-    """
+    '''
     Calculates the first difference of a time series
-    @param Series ts: The input time series
-    @return: The first difference of the time series
-    """
+
+    ts (Series) -- The input time series
+
+    return: The first difference of the time series
+    '''
     return ts.diff().dropna()
 
 
 def make_stationary(df):
-    """
+    '''
     Makes all time series in the input dataframe stationary by calculating
     nth differences
-    @param DataFrame df: The input dataframe
-    @return: The stationary outupt dataframe and how many differences were
+
+    df (DataFrame) -- The input dataframe
+
+    return: The stationary outupt dataframe and how many differences were
     required
-    """
+    '''
     counter = 0
     stationary_df = df.copy(deep=True)
     stationary = df_adf_test(df)
@@ -149,12 +160,14 @@ def make_stationary(df):
 
 
 def pred_model(data, num_yr):
-    """
+    '''
     Runs a prediction VAR model on the input data
-    @param DataFrame data: The input data
-    @param Integer num_yr: The number of years to forecast
-    @return: A forecasting vector for all indicators
-    """
+
+    DataFrame data (DataFrame) -- The input data
+    num_yr (Integer) -- The number of years to forecast
+
+    return: A forecasting vector for all indicators
+    '''
     model = VAR(data)
     fit = model.fit()
     prediction = fit.forecast(fit.y, steps=num_yr)
@@ -162,14 +175,15 @@ def pred_model(data, num_yr):
 
 
 def plot_ind(orig, pred, indicator, val):
-    """
+    '''
     Plots the original data, the predicted forecasting, and the actual
     future results.
-    @param DataFrame orig: The original df with past and future data
-    @param Series pred: The prediction vector for the target indicator
-    @param String indicator: The name of the target indicator
-    @param Series val: The actual future values of the indicator
-    """
+
+    orig (DataFrame) -- The original df with past and future data
+    pred (Series) -- The prediction vector for the target indicator
+    indicator (String) -- The name of the target indicator
+    val (Series) -- The actual future values of the indicator
+    '''
 
     # construct the future vectors
     orig_ind = orig.iloc[:, 0]
@@ -192,13 +206,16 @@ def plot_ind(orig, pred, indicator, val):
 
 
 def forecast_VAR(filepath, indicator, granger_lag=5):
-    """
+    '''
     The end-to-end function to run the VAR model and plot results
-    @param String filepath: The filepath of the input data
-    @param String indicator: The target indicator to forecast
-    @param Integer granger_lag: The maximum amount of lag allowed by Granger
+
+    filepath (String) -- The filepath of the input data
+    String indicator (String) -- The target indicator to forecast
+    granger_lag (Integer) -- The maximum amount of lag allowed by Granger
     causality
-    """
+    
+    @return: The actual and predicted future vectors
+    '''
 
     # only use indicators that granger cause the target
     df = wrangle(filepath)
@@ -222,5 +239,6 @@ def forecast_VAR(filepath, indicator, granger_lag=5):
     plot_ind(testing_set, pred_test, indicator, val1)
     plt.savefig('Figures/' + indicator + '_VAR.png', dpi=200)
 
+    return pred_test, val1.iloc[:, 0]
 
-forecast_VAR('../cached_data/ALL_DB_COL_data_100_threshold.csv', 'SH.DTH.MORT')
+predicted, actual = forecast_VAR('../cached_data/ALL_DB_COL_data_100_threshold.csv', 'SH.DTH.MORT')
