@@ -62,12 +62,13 @@ def remove_duplicates(df):
     return df.drop_duplicates()
 
 
-def wrangle(filepath):
+def wrangle(filepath, norm=True):
     """
     Imports the CSV file, removes duplicates, and normalizes all the data.
     @param filepath: The filepath of the CSV file.
     @return: A DataFrame file with all normalized and cleaned data.
     """
     df = csv2df(filepath)
-    df = normalize(df)
+    if norm:
+        df = normalize(df)
     return remove_duplicates(df)
