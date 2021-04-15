@@ -21,7 +21,7 @@ data = pd.read_csv("/work/DSCI400-Project/src/cached_data/norm_ALL_DB_COL_data_1
 def get_idx(target_ind, data):
     '''
     target_ind (string) -- target indicator
-    data (Pandas dataframe): dataframe of indicators
+    data (Pandas dataframe) -- dataframe of indicators
     '''
     rows = data.shape[0]
     for i in range(rows):
