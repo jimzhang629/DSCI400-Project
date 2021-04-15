@@ -205,11 +205,11 @@ def plot_ind(orig, pred, indicator, val):
     plt.legend()
 
 
-def forecast_VAR(filepath, indicator, granger_lag=5):
+def forecast_VAR(df, indicator, granger_lag=5):
     '''
     The end-to-end function to run the VAR model and plot results
 
-    filepath (String) -- The filepath of the input data
+    df (Dataframe) -- The dataframe of the input data
     String indicator (String) -- The target indicator to forecast
     granger_lag (Integer) -- The maximum amount of lag allowed by Granger
     causality
@@ -218,7 +218,6 @@ def forecast_VAR(filepath, indicator, granger_lag=5):
     '''
 
     # only use indicators that granger cause the target
-    df = wrangle(filepath)
     df = df.T
     granger_df, rows = granger_threshold(df, indicator, granger_lag, 0.05)
 
@@ -241,4 +240,19 @@ def forecast_VAR(filepath, indicator, granger_lag=5):
 
     return pred_test, val1.iloc[:, 0]
 
-predicted, actual = forecast_VAR('../cached_data/ALL_DB_COL_data_100_threshold.csv', 'SH.DTH.MORT')
+def forecast_VAR_filename(filename, indicator, granger_lag=5):
+    '''
+    The end-to-end function to run the VAR model and plot results.
+    Helper function that uses filepath name instead of dataframe.
+
+    filepath (String) -- The filepath of the input data
+    String indicator (String) -- The target indicator to forecast
+    granger_lag (Integer) -- The maximum amount of lag allowed by Granger
+    causality
+    
+    @return: The actual and predicted future vectors
+    '''
+    df = wrangle(filepath)
+    return forecast_VAR(df, indicator, granger_lag)
+
+predicted, actual = forecast_VAR_filename('../cached_data/ALL_DB_COL_data_100_threshold.csv', 'SH.DTH.MORT')
