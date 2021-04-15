@@ -12,11 +12,12 @@ def granger_threshold(df, indicator, lag, thresh, test='ssr_ftest'):
     """
     Computes the Granger causation for the indicator in the first column of df
     with all other indicators.
-    @param df: The input data.
-    @param indicator: The indicator being compared with all other indicators.
-    @param lag: The maximum amount of Granger lag permitted
-    @param thresh: The highest p-value to reject the null hypothesis
-    @param test: The test to use to determine Granger causuality
+    @param DataFrame df: The input data.
+    @param String indicator: The indicator being compared with all other
+    indicators.
+    @param Integer lag: The maximum amount of Granger lag permitted
+    @param Integer thresh: The highest p-value to reject the null hypothesis
+    @param String test: The test to use to determine Granger causuality
     @return: A reduced dataframe that only has indicators that Granger cause
     the main indicator, and an integer representing how many causal indicators
     there are
@@ -57,10 +58,10 @@ def granger_threshold(df, indicator, lag, thresh, test='ssr_ftest'):
 def most_causal_indicator(df, lag, thresh, test='ssr_ftest'):
     """
     Determines the indicator that has the most causal indicators
-    @param df: The input data.
-    @param lag: The maximum amount of Granger lag permitted
-    @param thresh: The highest p-value to reject the null hypothesis
-    @param test: The test to use to determine Granger causuality
+    @param DataFrame df: The input data.
+    @param Integer lag: The maximum amount of Granger lag permitted
+    @param Integer thresh: The highest p-value to reject the null hypothesis
+    @param String test: The test to use to determine Granger causaulity
     @return: The name of the indicator with the most causal indicators
     """
     largest_df = 0
@@ -79,8 +80,8 @@ def most_causal_indicator(df, lag, thresh, test='ssr_ftest'):
 def adf_test(ts, signif=0.05):
     """
     Tests if the time series is stationary
-    @param ts: The input time series
-    @param signif: The highest threshold to determine stationarity
+    @param Series ts: The input time series
+    @param Float signif: The highest threshold to determine stationarity
     @return: Whether the time series is stationary
     """
 
@@ -101,7 +102,7 @@ def adf_test(ts, signif=0.05):
 def df_adf_test(df):
     """
     Determines if all the time series in df is stationary
-    @param df: The input data containing multiple time series
+    @param DataFrame df: The input data containing multiple time series
     @return: Whether all time series in the dataframe is stationary
     """
     indicators = list(df)
@@ -116,7 +117,7 @@ def df_adf_test(df):
 def first_diff(ts):
     """
     Calculates the first difference of a time series
-    @param ts: The input time series
+    @param Series ts: The input time series
     @return: The first difference of the time series
     """
     return ts.diff().dropna()
@@ -126,7 +127,7 @@ def make_stationary(df):
     """
     Makes all time series in the input dataframe stationary by calculating
     nth differences
-    @param df: The input dataframe
+    @param DataFrame df: The input dataframe
     @return: The stationary outupt dataframe and how many differences were
     required
     """
@@ -150,8 +151,8 @@ def make_stationary(df):
 def pred_model(data, num_yr):
     """
     Runs a prediction VAR model on the input data
-    @param data: The input data
-    @param num_yr: The number of years to forecast
+    @param DataFrame data: The input data
+    @param Integer num_yr: The number of years to forecast
     @return: A forecasting vector for all indicators
     """
     model = VAR(data)
@@ -164,10 +165,10 @@ def plot_ind(orig, pred, indicator, val):
     """
     Plots the original data, the predicted forecasting, and the actual
     future results.
-    @param orig: The original df with past and future data
-    @param pred: The prediction vector for the target indicator
-    @param indicator: The name of the target indicator
-    @param val: The actual future values of the indicator
+    @param DataFrame orig: The original df with past and future data
+    @param Series pred: The prediction vector for the target indicator
+    @param String indicator: The name of the target indicator
+    @param Series val: The actual future values of the indicator
     """
 
     # construct the future vectors
@@ -193,9 +194,10 @@ def plot_ind(orig, pred, indicator, val):
 def forecast_VAR(filepath, indicator, granger_lag=5):
     """
     The end-to-end function to run the VAR model and plot results
-    @param filepath: The filepath of the input data
-    @param indicator: The target indicator to forecast
-    @param granger_lag: The maximum amount of lag allowed by Granger causality
+    @param String filepath: The filepath of the input data
+    @param String indicator: The target indicator to forecast
+    @param Integer granger_lag: The maximum amount of lag allowed by Granger
+    causality
     """
 
     # only use indicators that granger cause the target
