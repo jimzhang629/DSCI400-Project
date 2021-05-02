@@ -213,7 +213,7 @@ def forecast_VAR(df, indicator, granger_lag=5):
     String indicator (String) -- The target indicator to forecast
     granger_lag (Integer) -- The maximum amount of lag allowed by Granger
     causality
-    
+
     @return: The actual and predicted future vectors
     '''
 
