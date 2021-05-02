@@ -15,6 +15,11 @@ TBD
 ## Dependencies
 For a list of necessary packages and package versions, see requirements.txt.
 
+To download these dependencies locally, run
+```
+$pip install -r /path/to/requirements.txt
+```
+
 ## Dataset
 Data used for this project can be obtained through this API: https://pypi.org/project/wbgapi/
 
