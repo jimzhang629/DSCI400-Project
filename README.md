@@ -4,10 +4,7 @@
 The goal of this project is to visualize and predict relationships between world development indicators in the World Bank. Our objectives are as follows:
 1. Visualize relationships between various civil indicators
 2. Train a network that predicts various metrics of a country using other metrics as input data
-    1. Train network for a single country
-    2. Train new networks for other countries
 3. Use these networks to predict the future metrics of each country
-4. (if time permits) Cluster data by regions or specific metrics to identify trends
 
 ## Usage Instructions
 1. Clone this repository by running the following on your terminal
