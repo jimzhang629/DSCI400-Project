@@ -26,10 +26,10 @@ def granger_threshold(df, indicator, lag, thresh, test='ssr_ftest'):
 
     # go through every indicator
     indicators = list(df)
-    reduced_df = df.loc[:, indicator] # create candidate df
+    reduced_df = df.loc[:, indicator]  # create candidate df
     for comparison_indicator in indicators:
         comparison = df.loc[:, indicator]  # create comparison matrix
-        if comparison_indicator != indicator: # only check causality for
+        if comparison_indicator != indicator:  # only check causality for
             # indicators that are not the same
             comparison = pd.concat([comparison,
                                     df.loc[:, comparison_indicator]], axis=1)
@@ -53,7 +53,11 @@ def granger_threshold(df, indicator, lag, thresh, test='ssr_ftest'):
             except:
                 print('Comparison Indicator Constant')
 
-    return reduced_df, len(reduced_df.columns)
+    try:  # the type is a df
+        return reduced_df, len(reduced_df.columns)
+
+    except:  # the type is a series
+        return reduced_df, 1
 
 
 def most_causal_indicator(df, lag, thresh, test='ssr_ftest'):
@@ -72,11 +76,16 @@ def most_causal_indicator(df, lag, thresh, test='ssr_ftest'):
     indicators = list(df)
 
     # go through every indicator
+    curr = 1
     for main_indicator in indicators:
         _, rows = granger_threshold(df, main_indicator, lag, thresh, test)
         if rows > largest_df:
             largest_df = rows
             best_indicator = main_indicator
+        print(str(curr / 474) + "%")
+        curr += 1
+    print(best_indicator)
+    print(largest_df)
     return best_indicator
 
 
@@ -98,7 +107,7 @@ def adf_test(ts, signif=0.05):
         adf['Critical Value (%s)' % key] = value
 
     p = adf['p-value']
-    if p <= signif: # the time series is stationary
+    if p <= signif:  # the time series is stationary
         return True
     else:
         return False
@@ -240,6 +249,7 @@ def forecast_VAR(df, indicator, granger_lag=5):
 
     return pred_test, val1.iloc[:, 0]
 
+
 def forecast_VAR_filename(filename, indicator, granger_lag=5):
     '''
     The end-to-end function to run the VAR model and plot results.
@@ -252,7 +262,8 @@ def forecast_VAR_filename(filename, indicator, granger_lag=5):
     
     @return: The actual and predicted future vectors
     '''
-    df = wrangle(filepath)
+    df = wrangle(filename)
     return forecast_VAR(df, indicator, granger_lag)
 
-predicted, actual = forecast_VAR_filename('../cached_data/ALL_DB_COL_data_100_threshold.csv', 'SH.DTH.MORT')
+
+predicted, actual = forecast_VAR_filename('../cached_data/ALL_DB_COL_data_100_threshold.csv', 'SP.POP.1014.FE.5Y', 8)
