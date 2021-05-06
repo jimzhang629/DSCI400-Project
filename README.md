@@ -10,12 +10,20 @@ The goal of this project is to visualize and predict relationships between world
 4. (if time permits) Cluster data by regions or specific metrics to identify trends
 
 ## Usage Instructions
-TBD
+1. Clone this repository by running the following on your terminal
+```
+$git clone https://github.com/jimzhang629/DSCI400-Project.git
+```
+2. Download the required dependencies by running the following while in the cloned repository
+```
+$pip install -r requirements.txt
+```
+3. To run ...
 
 ## Dependencies
 For a list of necessary packages and package versions, see requirements.txt.
 
-To download these dependencies locally, run
+To download these dependencies locally, run the following on your terminal
 ```
 $pip install -r /path/to/requirements.txt
 ```
