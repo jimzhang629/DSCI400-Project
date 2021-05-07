@@ -198,10 +198,10 @@ def plot_ind(orig, pred, indicator, val):
     orig_ind = orig.iloc[:, 0]
     pred_ind = pred
 
-    # plot the prediction and iinput data
-    plt.plot(range(len(orig_ind), len(orig_ind) + len(pred_ind)), pred_ind,
+    # plot the prediction and input data
+    plt.plot(range(len(orig_ind), len(orig_ind) + len(pred_ind)), pred_ind, 'b',
              label='Prediction')
-    plt.plot(range(len(orig_ind)), orig_ind, label='Input Data')
+    plt.plot(range(len(orig_ind)), orig_ind, 'r', label='Input Data')
     plt.xlabel("Number of Years")
     plt.ylabel("Normalized Indicator Value")
     plt.title("Predicting Future Values for Indicator " + indicator)
@@ -209,7 +209,7 @@ def plot_ind(orig, pred, indicator, val):
     # plot the predicted future
     if len(val) > 0:
         plt.plot(range(len(orig_ind), len(orig_ind) + len(pred_ind)),
-                 val.iloc[:, 0],
+                 val.iloc[:, 0], 'g',
                  label='Real Values for Predicted Years')
     plt.legend()
 
@@ -266,4 +266,4 @@ def forecast_VAR_filename(filename, indicator, granger_lag=5):
     return forecast_VAR(df, indicator, granger_lag)
 
 
-predicted, actual = forecast_VAR_filename('../cached_data/ALL_DB_COL_data_100_threshold.csv', 'SP.POP.1014.FE.5Y', 8)
+predicted, actual = forecast_VAR_filename('../cached_data/ALL_DB_COL_data_100_threshold.csv', 'SP.POP.TOTL.FE.IN', 5)
