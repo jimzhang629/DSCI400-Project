@@ -134,18 +134,23 @@ def split_data(dataset, target_idx, training_data_proportion):
     return train_X, train_y, test_X, test_y
 
 def post_process_PC(df, target_ind, corr_threshold):
+    '''
+    Post processing for Pearson Correlation
+    '''
     lst = list(pearson_correlation_feature_selection(df, target_ind, corr_threshold).index.values)
     ind = df.loc[lst]
     ind.index._data = np.array(range(len(lst)))
     return ind
 
 def post_process_FR(df, target_ind, k):
+    '''
+    Post processing for f-regression
+    '''
     lst = list(calculate_f_regression(df,target = target_ind, k = k).index.values)
     ind = df.loc[lst]
     ind.index._data = np.array(range(len(lst)))
     return ind
 
-print(post_process_FR(data, "NY.GDP.MKTP.KD", 100))
 
 def LSTM_predictions(target_ind, data, epochs=200, batch_size=72, corr_threshold=0.95):
     '''
