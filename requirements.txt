@@ -7,3 +7,4 @@ sklearn==0.0
 matplotlib==3.3.4
 scipy==1.6.1
 statsmodels~=0.12.2
+tensorflow==2.4.1
