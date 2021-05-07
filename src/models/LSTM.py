@@ -143,8 +143,6 @@ def post_process_FR(df, target_ind, k):
     ind.index._data = np.array(range(len(lst)))
     return ind
 
-print(post_process_FR(data, "NY.GDP.MKTP.KD", 100))
-
 def LSTM_predictions(target_ind, data, epochs=200, batch_size=72, corr_threshold=0.95):
     '''
     Get LSTM predictions for target indicator
