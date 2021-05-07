@@ -15,7 +15,7 @@ $git clone https://github.com/jimzhang629/DSCI400-Project.git
 ```
 $pip install -r requirements.txt
 ```
-3. To run ...
+3. To run LSTM.py and generate predictions for a target indicator, import LSTM.py and call LSTM_predictions. The function requires a target indicator (string) and your data (dataframe) as input.
 
 ## Dependencies
 For a list of necessary packages and package versions, see requirements.txt.
