@@ -20,16 +20,17 @@ from sklearn.feature_selection import f_regression
 
 
 def calculate_f_regression(df, target='NY.GDP.MKTP.CD', k=10):
-    """
+    '''
     This function performs feature selection by calculating the f_regression scores between indicators in
     df data frame and the target variable "target" and select the "k" best features.
 
     df (dataframe) -- the data frame that includes all indicators as columns
     target (string) -- an indicator that must be a column in df
     k (int) -- the number of best indicators for SelectKBest
-    Returns: a data frame that includes the indicators and their f_regression scores indexed by the original indices
+    
+    Returns -- a data frame that includes the indicators and their f_regression scores indexed by the original indices
              in df
-    """
+    '''
     # Get the data and drop the target feature
     idx = get_idx("NY.GDP.MKTP.KD", df)
     print(df)
@@ -59,6 +60,8 @@ def get_idx(target_ind, data):
     Gets target indicator index.
     target_ind (string) -- target indicator
     data (Pandas dataframe) -- dataframe of indicators
+    
+    Returns -- index of target indicator
     '''
     rows = data.shape[0]
     for i in range(rows):
@@ -73,8 +76,9 @@ def pearson_correlation_feature_selection(data, target_ind, corr_threshold = 0.8
 
     data (Pandas dataframe) -- dataframe of interest
     target_ind (string) -- WB code for indicator of interest
-    corr_threshold (float) -- A correlation threshold that an indicator must meet with the target indicator in order to not be removed.
-    Returns -- a dataframe of the features that meet the correlation threshold with the target indicator.
+    corr_threshold (float) -- A correlation threshold that an indicator must meet with the target indicator in order to not be removed
+    
+    Returns -- a dataframe of the features that meet the correlation threshold with the target indicator
     '''
     
     if abs(corr_threshold) > 1.0:
@@ -99,7 +103,7 @@ def plot_target_indicator(target_idx, target_ind, data):
 
     Returns: Plots of target indicator
     '''
-
+    
     data.iloc[:, target_idx].plot(figsize=(25,10))
 
     plot_acf(data.iloc[:,target_idx])
@@ -114,8 +118,9 @@ def split_data(dataset, target_idx, training_data_proportion):
     dataset (Pandas dataframe) -- your data
     training_data_proportion (float) -- proportion of data to use as training data
 
-    Returns: Dataset split into training and test data
+    Returns -- Dataset split into training and test data
     '''
+    
     #divide the data into train and test data
     train_size = int(len(dataset) * training_data_proportion)
     test_size = len(dataset) - train_size
@@ -132,12 +137,32 @@ def split_data(dataset, target_idx, training_data_proportion):
     return train_X, train_y, test_X, test_y
 
 def post_process_PC(df, target_ind, corr_threshold):
+    '''
+    Post processing function for Pearson Correlation feature selection.
+    
+    df (dataframe) -- the data frame that includes all indicators as columns
+    target_ind (string) -- Target indicator of interest
+    corr_threshold (float) -- A correlation threshold that an indicator must meet with the target indicator in order to not be removed
+    
+    Returns -- the indices of indicators that meet the correlation threshold with the target indicator
+    '''
+    
     lst = list(pearson_correlation_feature_selection(df, target_ind, corr_threshold).index.values)
     ind = df.loc[lst]
     ind.index._data = np.array(range(len(lst)))
     return ind
 
 def post_process_FR(df, target_ind, k):
+    '''
+    Performs post processing for f-regression feature selection.
+    
+    df (dataframe) -- the data frame that includes all indicators as columns
+    target_ind (string) -- Target indicator of interest
+    k (int) -- Number of k-best scored indicators to keep.
+    
+    Returns -- indices of k-best f-score indicators with target indicators 
+    '''
+    
     lst = list(calculate_f_regression(df,target = target_ind, k = k).index.values)
     ind = df.loc[lst]
     ind.index._data = np.array(range(len(lst)))
@@ -151,14 +176,14 @@ def LSTM_predictions(target_ind, data, epochs=200, batch_size=72, corr_threshold
     data (Pandas dataframe) -- dataframe of indicators
     epochs (int) -- number of training epochs
     batch_size (int) -- how much data in each batch
-    corr_threshold (float) -- Pearson correlation threshold that an indicator must meet with target indicator in order to be considered in analysis.
-    Returns: Future predicted values of target indicator from LSTM model
+    corr_threshold (float) -- Pearson correlation threshold that an indicator must meet with target indicator in order to be considered in analysis
+    
+    Returns -- Future predicted values of target indicator from LSTM model
     '''
-
+    
     data2 = post_process_FR(data, target_ind, corr_threshold)
     target_idx = get_idx(target_ind, data2)
     data2 = data2.drop(['True'], axis=1) #remove indicator names
-    #data2 = data2.drop(['Series'], axis=1) #remove indicator names
     transpose_data = data2.transpose()
     df = transpose_data
 
