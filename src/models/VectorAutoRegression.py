@@ -55,7 +55,11 @@ def granger_threshold(df, indicator, lag, thresh, test='ssr_ftest'):
             except:
                 print('Comparison Indicator Constant')
 
-    return reduced_df, len(reduced_df.columns)
+    try:  # the type is a df
+        return reduced_df, len(reduced_df.columns)
+
+    except:  # the type is a series
+        return reduced_df, 1
 
 
 def most_causal_indicator(df, lag, thresh, test='ssr_ftest'):
@@ -255,7 +259,7 @@ def forecast_VAR_filename(filename, indicator, granger_lag=5):
     
     @return: The actual and predicted future vectors
     '''
-    df = wrangle(filepath)
+    df = wrangle(filename)
     return forecast_VAR(df, indicator, granger_lag)
 
 
