@@ -1,11 +1,13 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
+import numpy as np
 
 from statsmodels.tsa.stattools import grangercausalitytests
 from src.modules.DataWrangling import wrangle
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.api import VAR
+from sklearn.metrics import mean_squared_error as mse
 
 
 def granger_threshold(df, indicator, lag, thresh, test='ssr_ftest'):
@@ -26,10 +28,10 @@ def granger_threshold(df, indicator, lag, thresh, test='ssr_ftest'):
 
     # go through every indicator
     indicators = list(df)
-    reduced_df = df.loc[:, indicator] # create candidate df
+    reduced_df = df.loc[:, indicator]  # create candidate df
     for comparison_indicator in indicators:
         comparison = df.loc[:, indicator]  # create comparison matrix
-        if comparison_indicator != indicator: # only check causality for
+        if comparison_indicator != indicator:  # only check causality for
             # indicators that are not the same
             comparison = pd.concat([comparison,
                                     df.loc[:, comparison_indicator]], axis=1)
@@ -98,7 +100,7 @@ def adf_test(ts, signif=0.05):
         adf['Critical Value (%s)' % key] = value
 
     p = adf['p-value']
-    if p <= signif: # the time series is stationary
+    if p <= signif:  # the time series is stationary
         return True
     else:
         return False
@@ -240,6 +242,7 @@ def forecast_VAR(df, indicator, granger_lag=5):
 
     return pred_test, val1.iloc[:, 0]
 
+
 def forecast_VAR_filename(filename, indicator, granger_lag=5):
     '''
     The end-to-end function to run the VAR model and plot results.
@@ -254,5 +257,31 @@ def forecast_VAR_filename(filename, indicator, granger_lag=5):
     '''
     df = wrangle(filepath)
     return forecast_VAR(df, indicator, granger_lag)
+
+
+def calc_all_mse(file):
+    """
+  calculates the error of var model for every possible target indicator in the file
+  @param file: filepath of csv containing un-wrangled dataset
+  @return: a dictionary containing the mean-squared-error for each different target indicator after wrangling
+  """
+
+    all_data = wrangle(file)
+    all_inds = all_data.index
+    err = {}
+    count = 0
+    for ind in all_inds:
+        act, pred = forecast_VAR_filename('ALL_DB_COL_data_100_threshold.csv', ind)
+        # filters out cases where VAR cannot be run
+        # since granger causality leaves only 1 indicator left
+        if len(act) != len(pred):
+            err[ind] = 99999999
+        else:
+            err[ind] = mse(act, pred)
+        # print iteration number
+        print('Indicator' + str(count))
+        count += 1
+    return err
+
 
 predicted, actual = forecast_VAR_filename('../cached_data/ALL_DB_COL_data_100_threshold.csv', 'SH.DTH.MORT')
