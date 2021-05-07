@@ -18,6 +18,8 @@ $pip install -r requirements.txt
 3. To run LSTM.py and generate predictions for a target indicator, import LSTM.py and call LSTM_predictions. The function requires a target indicator (string) and your data (dataframe) as input.
 4. To run VectorAutoRegression.py and generate predictions for a target indicator, import VectorAutoRegression.py and call forecast_VAR_filename.  The function requires a filepath (string) to the csv containing the data, as well as a target indicator (string). The function also has an optional paramater, granger_lag (integer), which is 5 by default. It does not require the data to have been wrangled yet, as the module automatically does so.  This function outputs the forecasted series for the target indicator.
 
+The Jupyter Notebooks under the demo folder are examples from previous iterations of development on how to run code.
+
 ## Dependencies
 For a list of necessary packages and package versions, see requirements.txt.
 
